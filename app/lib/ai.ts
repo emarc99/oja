@@ -61,15 +61,17 @@ export async function writeMemo(facts: Record<string, number>) {
     const res = await generateText({
       ...call,
       system:
-        "You write a three-sentence note to a small lender about a market trader's on-chain sales record. " +
-        "Use only the facts given, copy every number exactly as written, and add no other numbers, dates or percentages. Plain words, no hype.",
+        "You write a three-sentence note to someone deciding whether to fund a market trader's advance. " +
+        "Sentence one: how the shop sells. Sentence two: its score (out of 100) and the most it can borrow. " +
+        "Sentence three: the honest risk, such as a short history or customer wallets the owner funded; mention a zero only if it reassures. " +
+        "Use only the facts given and copy every number exactly as written. Add no other numbers, dates or percentages. Plain, warm words, no hype.",
       prompt: JSON.stringify(facts),
     });
     return res.text.trim();
   });
 
-  const allowed = Object.values(facts);
-  const claims = text.match(/\d[\d,]*(?:\.\d+)?/g) ?? [];
+  const allowed = [...Object.values(facts), 100];
+  const claims = text.match(/\d+(?:,\d{3})*(?:\.\d+)?/g) ?? [];
   const unverified = claims.filter((claim) => {
     const n = Number(claim.replace(/,/g, ""));
     return !allowed.some((v) => Math.abs(v - n) < 0.005);
