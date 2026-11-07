@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import { BN } from "@anchor-lang/core";
 import { NATIVE_MINT, createAssociatedTokenAccountIdempotentInstruction } from "@solana/spl-token";
 import {
+  Keypair,
   PublicKey,
   SystemProgram,
   TransactionInstruction,
@@ -36,6 +37,10 @@ export async function POST(req: Request) {
         ...over,
       });
 
+    // Make sure the shop's USDC account exists so the program's own checks are what reject the cheat.
+    const setup: TransactionInstruction[] = [
+      createAssociatedTokenAccountIdempotentInstruction(attacker.publicKey, ata(owner, merchant.mint), owner, merchant.mint),
+    ];
     let ix: TransactionInstruction;
     switch (kind) {
       case "self-pay":
@@ -55,10 +60,14 @@ export async function POST(req: Request) {
         if (!merchant.currentAdvance) return Response.json({ needs: "Request an advance first." });
         ix = await pay({ skipAdvance: true });
         break;
-      case "redirect-repayment":
+      case "redirect-repayment": {
         if (!active) return Response.json({ needs: "Needs a funded advance." });
-        ix = await pay({ lenderToken: ata(attacker.publicKey) });
+        // A separate thief-owned account, created inside the simulation, so only the lender check can catch it.
+        const thief = Keypair.generate().publicKey;
+        setup.push(createAssociatedTokenAccountIdempotentInstruction(attacker.publicKey, ata(thief, merchant.mint), thief, merchant.mint));
+        ix = await pay({ lenderToken: ata(thief, merchant.mint) });
         break;
+      }
       case "advance-too-big":
         ix = await program.methods
           .requestAdvance(new BN(1_000_000_000), 500, 2000)
@@ -78,11 +87,7 @@ export async function POST(req: Request) {
       new TransactionMessage({
         payerKey: attacker.publicKey,
         recentBlockhash: blockhash,
-        // Make sure the shop's USDC account exists so the program's own checks are what reject the cheat.
-        instructions: [
-          createAssociatedTokenAccountIdempotentInstruction(attacker.publicKey, ata(owner, merchant.mint), owner, merchant.mint),
-          ix,
-        ],
+        instructions: [...setup, ix],
       }).compileToV0Message(),
     );
     const sim = await connection.simulateTransaction(tx, { sigVerify: false, replaceRecentBlockhash: true });
