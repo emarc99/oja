@@ -176,7 +176,16 @@ function Request({ row, onFunded }: { row: Row; onFunded: () => Promise<void> })
         </div>
       </dl>
 
-      <LenderNote shop={record.owner} />
+      {record.linkedPayers.length > 0 && (
+        <p className="rounded-2xl bg-pepper/15 p-4 text-sm">
+          <b>
+            {record.linkedPayers.length} of {record.stats.customers} customer wallets were funded by the shop owner.
+          </b>{" "}
+          Those sales may not be real trade.
+        </p>
+      )}
+
+      <LenderNote shop={record.owner} label="Summarise this record with AI" />
 
       <button className="btn-pop w-full" onClick={fund} disabled={busy || !wallet.connected || own}>
         {own ? "This is your shop" : busy ? "Funding…" : `Fund ${principal.toFixed(2)} USDC`}

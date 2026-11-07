@@ -5,7 +5,7 @@ import { api } from "@/lib/client";
 
 type Memo = { text: string; claims: number; unverified: string[] };
 
-export function LenderNote({ shop }: { shop: string }) {
+export function LenderNote({ shop, label = "Write a note for lenders" }: { shop: string; label?: string }) {
   const [memo, setMemo] = useState<Memo | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -26,14 +26,14 @@ export function LenderNote({ shop }: { shop: string }) {
     return (
       <div>
         <button className="btn-ghost w-full" onClick={write} disabled={busy}>
-          {busy ? "Reading the chain…" : "Write a note for lenders"}
+          {busy ? "Reading the chain…" : label}
         </button>
         {error && <p className="mt-2 text-sm text-pepper">{error}</p>}
       </div>
     );
   }
 
-  const verified = memo.unverified.length === 0;
+  const verified = memo.claims > 0 && memo.unverified.length === 0;
   return (
     <div className="rounded-2xl bg-paper p-5">
       <p className="label">AI note, checked by code</p>
@@ -41,7 +41,9 @@ export function LenderNote({ shop }: { shop: string }) {
       <p className={`mt-3 text-sm font-medium ${verified ? "text-leaf" : "text-pepper"}`}>
         {verified
           ? `✓ All ${memo.claims} numbers match the on-chain record`
-          : `! Not in the record: ${memo.unverified.join(", ")}`}
+          : memo.claims === 0
+            ? "! No numbers to check against the record"
+            : `! Not in the record: ${memo.unverified.join(", ")}`}
       </p>
     </div>
   );
