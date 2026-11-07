@@ -1,0 +1,22 @@
+.anchor
+.DS_Store
+target
+**/*.rs.bk
+node_modules
+test-ledger
+.yarn
+.surfpool
+
+# app
+.next
+out
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
+# secrets and keypairs
+.env
+.env.*
+!.env.example
+*keypair*.json
+keys/
