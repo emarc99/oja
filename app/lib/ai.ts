@@ -56,6 +56,9 @@ export async function readSale(note: string): Promise<Sale> {
   });
 }
 
+const NUMBER_WORDS =
+  /\b(zero|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand)\b/i;
+
 export async function writeMemo(facts: Record<string, number>) {
   const text = await withModels(async (call) => {
     const res = await generateText({
@@ -64,10 +67,14 @@ export async function writeMemo(facts: Record<string, number>) {
         "You write a three-sentence note to someone deciding whether to fund a market trader's advance. " +
         "Sentence one: how the shop sells. Sentence two: its score (out of 100) and the most it can borrow. " +
         "Sentence three: the honest risk, such as a short history or customer wallets the owner funded; mention a zero only if it reassures. " +
-        "Use only the facts given and copy every number exactly as written. Add no other numbers, dates or percentages. Plain, warm words, no hype.",
+        "Use only the facts given and copy every number in digits exactly as written (26.95, never twenty-six point ninety-five). " +
+        "Add no other numbers, dates or percentages. Plain, warm words, no hype.",
       prompt: JSON.stringify(facts),
     });
-    return res.text.trim();
+    const text = res.text.trim();
+    // Numbers spelled out can't be checked against the record, so try the next model instead.
+    if (NUMBER_WORDS.test(text)) throw new Error("The note wrote numbers in words.");
+    return text;
   });
 
   const allowed = [...Object.values(facts), 100];

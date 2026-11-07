@@ -9,17 +9,18 @@ export async function POST(req: Request) {
     if (!record) return Response.json({ error: "Shop not found." }, { status: 404 });
 
     const s = record.stats;
-    const facts = {
+    const facts: Record<string, number> = {
       sales: s.sales,
       different_customers: s.customers,
       days_with_sales: s.activeDays,
       total_received_usdc: Math.round(s.volume * 100) / 100,
-      advances_repaid: s.completedAdvances,
       credit_score_out_of_100: record.score,
-      max_advance_usdc: s.maxAdvance,
       customer_wallets_funded_by_owner: record.linkedPayers.length,
-      customer_wallets_not_yet_checked: record.uncheckedPayers.length,
     };
+    if (record.advance) facts.advance_requested_usdc = record.advance.principal;
+    else facts.max_advance_usdc = s.maxAdvance;
+    if (s.completedAdvances) facts.advances_repaid_in_full = s.completedAdvances;
+    if (record.uncheckedPayers.length) facts.customer_wallets_not_yet_checked = record.uncheckedPayers.length;
     return Response.json({ facts, memo: await writeMemo(facts) });
   } catch (err) {
     return Response.json({ error: err instanceof Error ? err.message : "Could not write the memo." }, { status: 502 });
