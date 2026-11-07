@@ -16,6 +16,8 @@ export default function ShopPage() {
   const wallet = useWallet();
   const owner = wallet.publicKey;
   const [record, setRecord] = useState<ShopRecord | null | undefined>(undefined);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   const refresh = useCallback(async () => {
     if (owner) setRecord(await fetchRecord(owner));
@@ -26,17 +28,31 @@ export default function ShopPage() {
     let live = true;
     fetchRecord(owner)
       .then((r) => live && setRecord(r))
-      .catch(() => {});
+      .catch(() => live && setFailed(true));
     return () => {
       live = false;
     };
-  }, [owner]);
+  }, [owner, attempt]);
 
   let body: React.ReactNode;
   if (!owner) {
     body = (
       <Centered title="Your shop, on Solana." text="Connect the wallet you want to get paid into.">
         <Connect big />
+      </Centered>
+    );
+  } else if (record === undefined && failed) {
+    body = (
+      <Centered title="Solana didn't answer." text="The devnet connection timed out. It usually works on a second try.">
+        <button
+          className="btn-pop"
+          onClick={() => {
+            setFailed(false);
+            setAttempt((a) => a + 1);
+          }}
+        >
+          Try again
+        </button>
       </Centered>
     );
   } else if (record === undefined) {
