@@ -1,12 +1,19 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { WalletReadyState } from "@solana/wallet-adapter-base";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { short } from "@/lib/solana";
 
+const noop = () => () => {};
+
 export function Connect({ big = false }: { big?: boolean }) {
   const { wallets, select, connected, connecting, publicKey, disconnect } = useWallet();
+  const inBrowser = useSyncExternalStore(noop, () => true, () => false);
   const installed = wallets.filter((w) => w.readyState === WalletReadyState.Installed);
+
+  // Installed wallets are only known in the browser; render a stable placeholder on the server.
+  if (!inBrowser) return <span className={big ? "btn-pop invisible" : "btn invisible"}>Connect wallet</span>;
 
   if (connected && publicKey) {
     return (
