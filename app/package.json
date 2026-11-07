@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "setup": "node scripts/devnet.mjs setup",
+    "seed": "node scripts/devnet.mjs seed"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.113",
