@@ -15,7 +15,7 @@ const steps = [
   {
     n: "03",
     title: "Get an advance",
-    body: "Borrow against your record. A share of each sale repays the lender automatically, enforced by the program, not by chasing you.",
+    body: "Credit that carries you while you sell. A share of each sale repays the lender automatically, enforced by the program, not by chasing you.",
   },
 ];
 
