@@ -1,0 +1,7 @@
+/*
+!/app
+app/.env*
+!app/.env.example
+app/scripts/.seed-keypair.json
+app/.next
+app/node_modules

@@ -1,5 +1,0 @@
-.env*
-!.env.example
-scripts/.seed-keypair.json
-.next
-node_modules
