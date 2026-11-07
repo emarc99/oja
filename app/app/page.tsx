@@ -111,12 +111,12 @@ function ReceiptPreview() {
           <span className="label">Total</span>
           <span className="text-right">
             <span className="block text-3xl font-black tracking-tight">₦105,500</span>
-            <span className="font-mono text-sm text-muted">68.06 USDC</span>
+            <span className="font-mono text-sm text-muted">78.45 USDC</span>
           </span>
         </div>
         <div className="mt-6 space-y-2 rounded-2xl bg-paper p-4 text-sm">
-          <Row a="To shop" b="54.45 USDC" />
-          <Row a="To lender (20%)" b="13.61 USDC" />
+          <Row a="To shop" b="62.76 USDC" />
+          <Row a="To lender (20%)" b="15.69 USDC" />
         </div>
         <p className="mt-5 font-mono text-xs text-muted">Receipt #23 · on Solana</p>
       </div>
