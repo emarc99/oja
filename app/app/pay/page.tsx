@@ -7,7 +7,7 @@ import { PublicKey } from "@solana/web3.js";
 import { Connect } from "@/components/connect";
 import { Logo } from "@/components/header";
 import { api, friendly, signAndSend } from "@/lib/client";
-import { NGN_PER_USDC, explorerTx, fetchMerchant, fromBase, naira, usd } from "@/lib/solana";
+import { explorerTx, fetchMerchant, naira, usd } from "@/lib/solana";
 
 export default function PayPage() {
   return (
@@ -27,6 +27,7 @@ function Checkout() {
   const q = useSearchParams();
   const wallet = useWallet();
   const amount = Number(q.get("amount") ?? 0);
+  const ngn = Number(q.get("ngn") ?? 0);
   const [shopName, setShopName] = useState<string | null>(null);
   const [sig, setSig] = useState("");
   const [busy, setBusy] = useState(false);
@@ -83,9 +84,7 @@ function Checkout() {
           <p className="label">Pay</p>
           <h1 className="mt-2 text-2xl font-bold">{shopName ?? "…"}</h1>
           <p className="mt-8 text-6xl font-black tracking-tight">{usd(amount)}</p>
-          <p className="mt-1 font-mono text-muted">
-            USDC · about {naira(fromBase(amount) * NGN_PER_USDC)}
-          </p>
+          <p className="mt-1 font-mono text-muted">USDC{ngn > 0 && ` · for ${naira(ngn)}`}</p>
           {q.get("note") && <p className="mt-6 rounded-2xl bg-paper p-4 text-sm">{q.get("note")}</p>}
         </div>
       </div>

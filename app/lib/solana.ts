@@ -12,7 +12,6 @@ export const USDC_MINT = new PublicKey(
   process.env.NEXT_PUBLIC_USDC_MINT ?? "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
 );
 export const USDC_DECIMALS = 6;
-export const NGN_PER_USDC = Number(process.env.NEXT_PUBLIC_NGN_PER_USDC ?? 1550);
 export const PROGRAM_ID = new PublicKey(idl.address);
 export const MEMO_PROGRAM_ID = new PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
 
