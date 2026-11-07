@@ -5,7 +5,9 @@ import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import idl from "./idl/oja.json";
 import type { Oja } from "./idl/oja";
 
-export const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL ?? "https://api.devnet.solana.com";
+// The RPC key stays on the server; browsers go through the /api/rpc proxy.
+export const SERVER_RPC_URL = process.env.RPC_URL ?? "https://api.devnet.solana.com";
+export const RPC_URL = typeof window === "undefined" ? SERVER_RPC_URL : `${window.location.origin}/api/rpc`;
 export const USDC_MINT = new PublicKey(
   process.env.NEXT_PUBLIC_USDC_MINT ?? "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
 );
