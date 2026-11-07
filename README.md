@@ -12,7 +12,7 @@ Built for the MLH Solana Hackathon.
 
 ## How it works
 
-1. **Sell.** The trader types the sale the way they'd say it ("3 plates of jollof rice 1,500 each"). Gemini turns it into invoice lines; code re-adds the total and converts naira to USDC. The customer scans a Solana Pay QR code (or opens the checkout page) and pays. A sponsor wallet covers network fees, so customers need no SOL.
+1. **Sell.** The trader types the sale the way they'd say it ("3 plates of jollof rice 1,500 each"). Gemini turns it into invoice lines; code re-adds the total and converts naira to USDC at a live rate (see below). The customer scans a Solana Pay QR code (or opens the checkout page) and pays. A sponsor wallet covers network fees, so customers need no SOL.
 2. **Build your record.** `pay_invoice` writes a receipt account per invoice and updates the shop's sales count, volume and unique customers.
 3. **Get an advance.** Once a shop has 5 sales from 3 different customers, it can request up to 30% of its sales volume, capped by a credit ladder (10, 25, 50, then 100 USDC as advances are repaid). A lender funds it from the Lend page. From then on, `pay_invoice` sends 20% of every sale to the lender until the advance and its 5% fee are repaid.
 
@@ -38,6 +38,15 @@ A determined cheat with several unlinked wallets can still fake a small history;
 - **Invoices:** Gemini reads the sale; code recomputes every line and the total, and shows the checks.
 - **Lender note:** Gemini summarises the on-chain record; code verifies every number in the note against the record and flags anything it can't match.
 
+## Live price
+
+Each invoice converts naira to USDC at the moment it's made:
+
+- **USDC/USD** is read on-chain from Pyth's USDC/USD price account on Solana. The app checks the account is owned by Pyth's receiver program, carries the USDC feed id and is under 10 minutes old.
+- **USD/NGN** has no Pyth or Switchboard feed, so the app takes the median of two independent FX sources (ExchangeRate-API and currency-api) and flags the invoice if they disagree by more than 3%.
+
+If no naira rate is available the invoice is refused rather than priced at a guess. The rate is folded into the invoice id, and the checks under each invoice show where it came from. The program itself only ever sees USDC.
+
 ## Run it
 
 Requirements: Node 22+, a Phantom wallet on devnet, devnet USDC from [faucet.circle.com](https://faucet.circle.com).
@@ -56,7 +65,7 @@ The program lives in `programs/oja` (Anchor 1.2.2): `anchor build && anchor depl
 
 ## Notes
 
-- Devnet only. Prices convert at a fixed rate (₦1,550 per USDC), set in `.env.local`.
+- Devnet only. The FX sources quote the official mid-market rate; Nigeria's street rate can differ, which a production version would let the shop override.
 - Built with help from AI coding tools (Cursor). Gemini runs in the app as described above.
 
 ## Licence
