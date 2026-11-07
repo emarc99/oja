@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #f6f2e9;
+  --color-card: #fffcf5;
+  --color-ink: #111111;
+  --color-muted: #5f584e;
+  --color-line: #e2d8c6;
+  --color-pepper: #ff4a1c;
+  --color-leaf: #067a45;
+  --color-mint: #d6f5e3;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+::selection {
+  background: var(--color-pepper);
+  color: var(--color-ink);
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-paper transition hover:-translate-y-0.5 active:translate-y-0 disabled:pointer-events-none disabled:opacity-40;
+  }
+  .btn-pop {
+    @apply btn bg-pepper text-ink shadow-[3px_3px_0_var(--color-ink)];
+  }
+  .btn-ghost {
+    @apply btn bg-transparent text-ink ring-1 ring-ink/20 hover:ring-ink;
+  }
+  .card {
+    @apply rounded-3xl border border-line bg-card p-6;
+  }
+  .label {
+    @apply font-mono text-[11px] font-medium tracking-[0.14em] text-muted uppercase;
+  }
+  .field {
+    @apply w-full rounded-2xl border border-line bg-paper px-4 py-3 text-base outline-none placeholder:text-muted/70 focus:border-ink;
+  }
+}
