@@ -1,0 +1,971 @@
+{
+  "address": "6rpwpnvUSRzTMNR5R7kNAC9PFJJugJLCQUL9yZfRAwRu",
+  "metadata": {
+    "name": "oja",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Òjà: Solana Pay receipts that build a trader's credit history, and advances that repay themselves"
+  },
+  "instructions": [
+    {
+      "name": "cancel_advance",
+      "discriminator": [
+        57,
+        217,
+        75,
+        4,
+        100,
+        121,
+        216,
+        180
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true,
+          "relations": [
+            "merchant"
+          ]
+        },
+        {
+          "name": "merchant",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  114,
+                  99,
+                  104,
+                  97,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          },
+          "relations": [
+            "advance"
+          ]
+        },
+        {
+          "name": "advance",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  100,
+                  118,
+                  97,
+                  110,
+                  99,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "merchant"
+              },
+              {
+                "kind": "account",
+                "path": "advance.index",
+                "account": "Advance"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "fund_advance",
+      "discriminator": [
+        166,
+        61,
+        17,
+        242,
+        252,
+        112,
+        35,
+        22
+      ],
+      "accounts": [
+        {
+          "name": "lender",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "merchant",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  114,
+                  99,
+                  104,
+                  97,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "merchant.owner",
+                "account": "Merchant"
+              }
+            ]
+          },
+          "relations": [
+            "advance"
+          ]
+        },
+        {
+          "name": "advance",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  100,
+                  118,
+                  97,
+                  110,
+                  99,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "merchant"
+              },
+              {
+                "kind": "account",
+                "path": "advance.index",
+                "account": "Advance"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "lender_token",
+          "writable": true
+        },
+        {
+          "name": "merchant_token",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "init_merchant",
+      "discriminator": [
+        209,
+        11,
+        214,
+        195,
+        222,
+        157,
+        124,
+        192
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "merchant",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  114,
+                  99,
+                  104,
+                  97,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "pay_invoice",
+      "discriminator": [
+        104,
+        6,
+        62,
+        239,
+        197,
+        206,
+        208,
+        220
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "fee_payer",
+          "docs": [
+            "Pays the receipt's rent and usually the transaction fee: the shop's sponsor, or the payer."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "merchant",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  114,
+                  99,
+                  104,
+                  97,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "merchant.owner",
+                "account": "Merchant"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "payer_token",
+          "writable": true
+        },
+        {
+          "name": "merchant_token",
+          "writable": true
+        },
+        {
+          "name": "receipt",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  99,
+                  101,
+                  105,
+                  112,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "merchant"
+              },
+              {
+                "kind": "arg",
+                "path": "invoice_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "advance",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "lender_token",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "invoice_id",
+          "type": {
+            "array": [
+              "u8",
+              16
+            ]
+          }
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "request_advance",
+      "discriminator": [
+        30,
+        94,
+        222,
+        131,
+        223,
+        83,
+        0,
+        28
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "merchant"
+          ]
+        },
+        {
+          "name": "merchant",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  114,
+                  99,
+                  104,
+                  97,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "advance",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  100,
+                  118,
+                  97,
+                  110,
+                  99,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "merchant"
+              },
+              {
+                "kind": "account",
+                "path": "merchant.advance_count",
+                "account": "Merchant"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "principal",
+          "type": "u64"
+        },
+        {
+          "name": "fee_bps",
+          "type": "u16"
+        },
+        {
+          "name": "repay_bps",
+          "type": "u16"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Advance",
+      "discriminator": [
+        66,
+        25,
+        217,
+        133,
+        38,
+        192,
+        224,
+        218
+      ]
+    },
+    {
+      "name": "Merchant",
+      "discriminator": [
+        71,
+        235,
+        30,
+        40,
+        231,
+        21,
+        32,
+        64
+      ]
+    },
+    {
+      "name": "Receipt",
+      "discriminator": [
+        39,
+        154,
+        73,
+        106,
+        80,
+        102,
+        145,
+        153
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "AdvanceFunded",
+      "discriminator": [
+        45,
+        71,
+        181,
+        151,
+        172,
+        82,
+        223,
+        40
+      ]
+    },
+    {
+      "name": "AdvanceRepaid",
+      "discriminator": [
+        185,
+        191,
+        136,
+        90,
+        224,
+        95,
+        1,
+        197
+      ]
+    },
+    {
+      "name": "AdvanceRequested",
+      "discriminator": [
+        139,
+        249,
+        209,
+        108,
+        1,
+        107,
+        150,
+        25
+      ]
+    },
+    {
+      "name": "SaleRecorded",
+      "discriminator": [
+        142,
+        88,
+        165,
+        117,
+        120,
+        73,
+        169,
+        110
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidName",
+      "msg": "Shop name must be 1 to 32 bytes"
+    },
+    {
+      "code": 6001,
+      "name": "ZeroAmount",
+      "msg": "Amount must be greater than zero"
+    },
+    {
+      "code": 6002,
+      "name": "WrongMint",
+      "msg": "This token is not the currency this shop accepts"
+    },
+    {
+      "code": 6003,
+      "name": "WrongPayerAccount",
+      "msg": "The paying token account does not belong to the payer"
+    },
+    {
+      "code": 6004,
+      "name": "WrongMerchantAccount",
+      "msg": "The receiving token account does not belong to the shop owner"
+    },
+    {
+      "code": 6005,
+      "name": "AdvanceAccountsMissing",
+      "msg": "This shop has an advance, so the advance account must be included"
+    },
+    {
+      "code": 6006,
+      "name": "WrongAdvance",
+      "msg": "That is not this shop's current advance"
+    },
+    {
+      "code": 6007,
+      "name": "WrongLenderAccount",
+      "msg": "Repayment must go to the lender's own token account"
+    },
+    {
+      "code": 6008,
+      "name": "NotMerchantOwner",
+      "msg": "Only the shop owner can do this"
+    },
+    {
+      "code": 6009,
+      "name": "AdvanceAlreadyOpen",
+      "msg": "This shop already has an open advance"
+    },
+    {
+      "code": 6010,
+      "name": "SelfPayment",
+      "msg": "A shop cannot pay itself"
+    },
+    {
+      "code": 6011,
+      "name": "NotEnoughHistory",
+      "msg": "Not enough recorded sales to qualify for an advance yet"
+    },
+    {
+      "code": 6012,
+      "name": "NotEnoughPayers",
+      "msg": "Not enough different customers to qualify for an advance yet"
+    },
+    {
+      "code": 6013,
+      "name": "AdvanceTooLarge",
+      "msg": "Advance is larger than the limit set by recorded sales"
+    },
+    {
+      "code": 6014,
+      "name": "AboveCreditLadder",
+      "msg": "Advance is above this shop's credit ladder step; repay advances to climb"
+    },
+    {
+      "code": 6015,
+      "name": "RepayShareOutOfRange",
+      "msg": "Repayment share must be between 5% and 50% of each sale"
+    },
+    {
+      "code": 6016,
+      "name": "FeeTooHigh",
+      "msg": "Fee can be at most 20%"
+    },
+    {
+      "code": 6017,
+      "name": "AdvanceNotRequested",
+      "msg": "This advance is not waiting for funding"
+    },
+    {
+      "code": 6018,
+      "name": "SelfFunding",
+      "msg": "A shop cannot fund its own advance"
+    },
+    {
+      "code": 6019,
+      "name": "Overflow",
+      "msg": "Arithmetic overflow"
+    }
+  ],
+  "types": [
+    {
+      "name": "Advance",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "merchant",
+            "type": "pubkey"
+          },
+          {
+            "name": "index",
+            "type": "u32"
+          },
+          {
+            "name": "lender",
+            "type": "pubkey"
+          },
+          {
+            "name": "principal",
+            "type": "u64"
+          },
+          {
+            "name": "fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "repay_bps",
+            "type": "u16"
+          },
+          {
+            "name": "total_due",
+            "type": "u64"
+          },
+          {
+            "name": "repaid",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "AdvanceStatus"
+              }
+            }
+          },
+          {
+            "name": "requested_ts",
+            "type": "i64"
+          },
+          {
+            "name": "funded_ts",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AdvanceFunded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "merchant",
+            "type": "pubkey"
+          },
+          {
+            "name": "advance",
+            "type": "pubkey"
+          },
+          {
+            "name": "lender",
+            "type": "pubkey"
+          },
+          {
+            "name": "principal",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AdvanceRepaid",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "merchant",
+            "type": "pubkey"
+          },
+          {
+            "name": "advance",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_repaid",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AdvanceRequested",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "merchant",
+            "type": "pubkey"
+          },
+          {
+            "name": "advance",
+            "type": "pubkey"
+          },
+          {
+            "name": "principal",
+            "type": "u64"
+          },
+          {
+            "name": "total_due",
+            "type": "u64"
+          },
+          {
+            "name": "repay_bps",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AdvanceStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Requested"
+          },
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Repaid"
+          },
+          {
+            "name": "Cancelled"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Merchant",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "total_received",
+            "type": "u64"
+          },
+          {
+            "name": "sale_count",
+            "type": "u32"
+          },
+          {
+            "name": "unique_payers",
+            "type": "u32"
+          },
+          {
+            "name": "recent_payers",
+            "type": {
+              "array": [
+                "pubkey",
+                16
+              ]
+            }
+          },
+          {
+            "name": "payer_cursor",
+            "type": "u8"
+          },
+          {
+            "name": "advance_count",
+            "type": "u32"
+          },
+          {
+            "name": "completed_advances",
+            "type": "u16"
+          },
+          {
+            "name": "first_sale_ts",
+            "type": "i64"
+          },
+          {
+            "name": "last_sale_ts",
+            "type": "i64"
+          },
+          {
+            "name": "current_advance",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Receipt",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "merchant",
+            "type": "pubkey"
+          },
+          {
+            "name": "payer",
+            "type": "pubkey"
+          },
+          {
+            "name": "invoice_id",
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "lender_share",
+            "type": "u64"
+          },
+          {
+            "name": "ts",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SaleRecorded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "merchant",
+            "type": "pubkey"
+          },
+          {
+            "name": "receipt",
+            "type": "pubkey"
+          },
+          {
+            "name": "payer",
+            "type": "pubkey"
+          },
+          {
+            "name": "invoice_id",
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "lender_share",
+            "type": "u64"
+          },
+          {
+            "name": "ts",
+            "type": "i64"
+          }
+        ]
+      }
+    }
+  ]
+}
