@@ -17,7 +17,8 @@ export async function POST(req: Request) {
       advances_repaid: s.completedAdvances,
       credit_score_out_of_100: record.score,
       max_advance_usdc: s.maxAdvance,
-      payers_funded_by_owner: record.linkedPayers.length,
+      customer_wallets_funded_by_owner: record.linkedPayers.length,
+      customer_wallets_not_yet_checked: record.uncheckedPayers.length,
     };
     return Response.json({ facts, memo: await writeMemo(facts) });
   } catch (err) {

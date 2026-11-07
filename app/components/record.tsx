@@ -34,6 +34,11 @@ export function Record({ record, onChange }: { record: ShopRecord; onChange: () 
             advances are paused.
           </p>
         )}
+        {record.uncheckedPayers.length > 0 && (
+          <p className="mt-5 rounded-2xl bg-line/60 p-4 text-sm">
+            Couldn&apos;t check {record.uncheckedPayers.length} customer wallet(s); devnet is busy. Refresh in a moment.
+          </p>
+        )}
       </div>
 
       <Advance record={record} onChange={onChange} />
@@ -171,7 +176,10 @@ function Advance({ record, onChange }: { record: ShopRecord; onChange: () => voi
             done={s.uniquePayersOnChain >= MIN_PAYERS}
             label={`${Math.min(s.uniquePayersOnChain, MIN_PAYERS)} of ${MIN_PAYERS} different customers`}
           />
-          <Need done={record.linkedPayers.length === 0} label="Customers not funded by you" />
+          <Need
+            done={record.linkedPayers.length === 0 && record.uncheckedPayers.length === 0}
+            label="Customers not funded by you"
+          />
         </ul>
       </>
     );

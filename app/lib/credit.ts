@@ -46,11 +46,11 @@ export async function shopRecord(owner: PublicKey) {
   const activeDays = new Set(receipts.map((r) => new Date(r.ts * 1000).toISOString().slice(0, 10))).size;
   const completedAdvances = merchant.completedAdvances;
 
-  const linkedPayers = await payersFundedByOwner(owner, payers.slice(0, 8));
+  const { linked: linkedPayers, unchecked: uncheckedPayers } = await payersFundedByOwner(owner, payers.slice(0, 8));
 
   const ladderCap = CREDIT_LADDER[Math.min(completedAdvances, CREDIT_LADDER.length - 1)];
   const volumeCap = Math.floor(volume * MAX_ADVANCE_SHARE * 100) / 100;
-  const eligible = sales >= MIN_SALES && merchant.uniquePayers >= MIN_PAYERS && !advance && linkedPayers.length === 0;
+  const eligible = sales >= MIN_SALES && merchant.uniquePayers >= MIN_PAYERS && !advance && linkedPayers.length === 0 && uncheckedPayers.length === 0;
   const maxAdvance = eligible ? Math.min(ladderCap, volumeCap) : 0;
 
   const score = Math.max(
@@ -83,30 +83,48 @@ export async function shopRecord(owner: PublicKey) {
       maxAdvance,
     },
     linkedPayers,
+    uncheckedPayers,
     advance,
     receipts: receipts.slice(0, 20),
   };
 }
 
+// Transaction history never changes, so each signature only needs reading once per server instance.
+const checked = new Map<string, { linked: boolean; sigs: Set<string> }>();
+
 /**
  * A payer the shop owner sent money to is probably the owner's own wallet.
  * Checks each payer's recent history for a transaction the owner signed.
+ * Payers whose history couldn't be read are reported as unchecked, never as clean.
  */
 async function payersFundedByOwner(owner: PublicKey, payers: string[]) {
   const linked: string[] = [];
+  const unchecked: string[] = [];
   for (const payer of payers) {
-    const sigs = await connection.getSignaturesForAddress(new PublicKey(payer), { limit: 10 }).catch(() => []);
-    if (!sigs.length) continue;
-    const txs = await connection
-      .getParsedTransactions(
-        sigs.map((s) => s.signature),
-        { maxSupportedTransactionVersion: 1, commitment: "confirmed" },
-      )
-      .catch(() => []);
-    const ownerSigned = txs.some((tx) =>
-      tx?.transaction.message.accountKeys.some((k) => k.signer && k.pubkey.equals(owner)),
-    );
-    if (ownerSigned) linked.push(payer);
+    const key = `${owner.toBase58()}:${payer}`;
+    const entry = checked.get(key) ?? { linked: false, sigs: new Set<string>() };
+    if (!entry.linked) {
+      try {
+        const sigs = await connection.getSignaturesForAddress(new PublicKey(payer), { limit: 10 });
+        for (const { signature } of sigs) {
+          if (entry.sigs.has(signature)) continue;
+          const tx = await connection.getParsedTransaction(signature, {
+            maxSupportedTransactionVersion: 1,
+            commitment: "confirmed",
+          });
+          entry.sigs.add(signature);
+          if (tx?.transaction.message.accountKeys.some((k) => k.signer && k.pubkey.equals(owner))) {
+            entry.linked = true;
+            break;
+          }
+        }
+      } catch {
+        unchecked.push(payer);
+      } finally {
+        checked.set(key, entry);
+      }
+    }
+    if (entry.linked) linked.push(payer);
   }
-  return linked;
+  return { linked, unchecked };
 }
