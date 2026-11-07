@@ -48,6 +48,12 @@ function Checkout() {
       });
       setSig(await signAndSend(wallet, transaction));
     } catch (err) {
+      // Switching accounts inside Phantom leaves the site holding a stale connection.
+      if (/not connected/i.test(String(err))) {
+        await wallet.disconnect().catch(() => {});
+        setError("Your wallet switched accounts. Connect again to pay.");
+        return;
+      }
       setError(friendly(err));
     } finally {
       setBusy(false);

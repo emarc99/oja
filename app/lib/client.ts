@@ -41,6 +41,7 @@ export function friendly(err: unknown) {
   const known = idl.errors.find((e) => e.code === code);
   if (known) return known.msg;
   if (/rejected|declined|cancel/i.test(text)) return "You cancelled in your wallet.";
+  if (/not connected/i.test(text)) return "Your wallet switched accounts. Tap your address at the top to disconnect, then connect again.";
   return text.length > 140 ? `${text.slice(0, 140)}…` : text;
 }
 
