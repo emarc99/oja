@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { BN } from "@anchor-lang/core";
-import { NATIVE_MINT } from "@solana/spl-token";
+import { NATIVE_MINT, createAssociatedTokenAccountIdempotentInstruction } from "@solana/spl-token";
 import {
   PublicKey,
   SystemProgram,
@@ -39,10 +39,11 @@ export async function POST(req: Request) {
     let ix: TransactionInstruction;
     switch (kind) {
       case "self-pay":
-        ix = await pay({ payer: owner });
+        // A distinct source account, so Anchor's duplicate-account guard doesn't fire before the program's own rule.
+        ix = await pay({ payer: owner, payerToken: ata(attacker.publicKey) });
         break;
       case "fake-token":
-        ix = await pay({ mint: NATIVE_MINT, payerToken: ata(attacker.publicKey, NATIVE_MINT) });
+        ix = await pay({ mint: NATIVE_MINT });
         break;
       case "double-pay": {
         const [paid] = await program.account.receipt.all([{ memcmp: { offset: 8, bytes: merchantKey.toBase58() } }]);
@@ -74,7 +75,15 @@ export async function POST(req: Request) {
 
     const { blockhash } = await connection.getLatestBlockhash();
     const tx = new VersionedTransaction(
-      new TransactionMessage({ payerKey: attacker.publicKey, recentBlockhash: blockhash, instructions: [ix] }).compileToV0Message(),
+      new TransactionMessage({
+        payerKey: attacker.publicKey,
+        recentBlockhash: blockhash,
+        // Make sure the shop's USDC account exists so the program's own checks are what reject the cheat.
+        instructions: [
+          createAssociatedTokenAccountIdempotentInstruction(attacker.publicKey, ata(owner, merchant.mint), owner, merchant.mint),
+          ix,
+        ],
+      }).compileToV0Message(),
     );
     const sim = await connection.simulateTransaction(tx, { sigVerify: false, replaceRecentBlockhash: true });
     const logs = sim.value.logs ?? [];
